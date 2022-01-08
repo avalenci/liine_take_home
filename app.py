@@ -1,6 +1,6 @@
 from datetime import datetime
 import csv
-from flask import Flask, request, abort
+from flask import Flask, request, abort, jsonify, make_response
 from flask_restful import Resource, Api, reqparse
 import json
 from marshmallow import Schema, fields
@@ -110,14 +110,21 @@ class MyAPI(Resource):
             for row in spamreader:
                 if isOpen(row[1], given_day, date_time_time):
                     ret_ary.append(row[0][0:-1]) # append restaurant name to list, cut off trailing comma
-            return json.dumps(ret_ary), 200  # return restaurants and 200 OK code
+            response = make_response(
+                jsonify(
+                    {"restaurants": ret_ary}
+                ),
+                200,
+            )
+            response.headers["Content-Type"] = "application/json"
+            return response
 
 app = Flask(__name__)
 api = Api(app)
-api.add_resource(MyAPI, '/')
+api.add_resource(MyAPI, "/")
 schema = MyAPISchema()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     testConvertToDateTime()
     testIsOpen()
     app.run()

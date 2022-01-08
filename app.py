@@ -91,14 +91,13 @@ class MyAPI(Resource):
 
     def get(self):
         errors = schema.validate(request.args)
-        if errors:
+        if errors: # if errors, send error message
             abort(400, str(errors))
 
-        # date_time_str = "2018-06-23 10:15:27.243860" # example input
         date_time_str = request.args["date"]
         try:
             date_time_obj = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S.%f")
-        except ValueError:
+        except ValueError: # if wrong format, abort and send message
             abort(400, "Incorrect Date Format: Must be in %Y-%m-%d %H:%M:%S.%f, e.g. 2018-06-23 10:15:27.243860")
         date_time_time = datetime.strptime(str(date_time_obj.time()), "%H:%M:%S.%f")
 
@@ -110,7 +109,7 @@ class MyAPI(Resource):
             ret_ary = []
             for row in spamreader:
                 if isOpen(row[1], given_day, date_time_time):
-                    ret_ary.append(row[0][0:-1])
+                    ret_ary.append(row[0][0:-1]) # append restaurant name to list, cut off trailing comma
             return json.dumps(ret_ary), 200  # return restaurants and 200 OK code
 
 app = Flask(__name__)
